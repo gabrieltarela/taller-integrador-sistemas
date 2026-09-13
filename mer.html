@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelo Entidad Relación - Sistema SGA</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 25px;
+            background-color: #f0f8ff; /* Fondo claro celeste (AliceBlue) */
+            color: #1a365d;
+        }
+        .container {
+            max-width: 1250px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(2, 132, 199, 0.12);
+        }
+        h1 {
+            color: #0369a1;
+            text-align: center;
+            border-bottom: 3px solid #bae6fd;
+            padding-bottom: 12px;
+            margin-top: 0;
+            font-size: 1.8em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #475569;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+            background: #f0f9ff;
+            padding: 12px 18px;
+            border-radius: 8px;
+            border: 1px solid #bae6fd;
+            font-size: 0.88em;
+            font-weight: 600;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #0369a1;
+        }
+        .box-rect { width: 18px; height: 13px; background: #e0f2fe; border: 2px solid #0284c7; border-radius: 2px; }
+        .box-diamond { width: 12px; height: 12px; background: #bae6fd; border: 2px solid #0369a1; transform: rotate(45deg); }
+        .box-agg { width: 20px; height: 14px; border: 2px dashed #0284c7; background: rgba(224, 242, 254, 0.4); border-radius: 3px; }
+        .circle-tot { width: 10px; height: 10px; background: #0284c7; border-radius: 50%; }
+        .text-pk-legend { font-weight: bold; text-decoration: underline; color: #0369a1; }
+        
+        .diagram-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            background: #ffffff;
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        
+        svg {
+            background-color: #f8fafc;
+            width: 100%;
+            height: auto;
+            min-width: 1150px;
+            display: block;
+        }
+        
+        /* Estilos de elementos MER */
+        .entity { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2.2; rx: 5; }
+        .entity-sub { fill: #f0f9ff; stroke: #0369a1; stroke-width: 2; rx: 5; }
+        .relationship { fill: #bae6fd; stroke: #0369a1; stroke-width: 2.2; }
+        .aggregation { fill: #f0f9ff; fill-opacity: 0.55; stroke: #0284c7; stroke-width: 2.2; stroke-dasharray: 6,4; rx: 8; }
+        .isa-triangle { fill: #bae6fd; stroke: #0369a1; stroke-width: 2; }
+        
+        .line { stroke: #0369a1; stroke-width: 2; }
+        .line-attr { stroke: #64748b; stroke-width: 1.2; stroke-dasharray: 3,2; }
+        
+        .text-title { font-size: 13px; font-weight: bold; fill: #0f172a; text-anchor: middle; dominant-baseline: middle; font-family: system-ui, -apple-system, sans-serif; }
+        .text-rel { font-size: 11px; font-weight: bold; fill: #0369a1; text-anchor: middle; dominant-baseline: middle; font-family: system-ui, -apple-system, sans-serif; }
+        .text-card { font-size: 12px; font-weight: bold; fill: #0284c7; font-family: system-ui, -apple-system, sans-serif; }
+        .text-attr { font-size: 11px; fill: #334155; font-family: system-ui, -apple-system, sans-serif; }
+        .pk { font-weight: bold; text-decoration: underline; fill: #0369a1; }
+        
+        .tot-circle { fill: #0284c7; stroke: #0369a1; stroke-width: 1; }
+        
+        .notes-box {
+            margin-top: 25px;
+            padding: 16px 20px;
+            background-color: #f0f9ff;
+            border-left: 4px solid #0284c7;
+            border-radius: 6px;
+            font-size: 0.92em;
+        }
+        .notes-box h3 {
+            margin-top: 0;
+            color: #0369a1;
+            font-size: 1.05em;
+        }
+        .notes-box ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #334155;
+        }
+        .notes-box li {
+            margin-bottom: 6px;
+        }
+
+        /* Footer Centrado sin negrita */
+        .footer {
+            margin-top: 35px;
+            padding-top: 15px;
+            border-top: 1px solid #cbd5e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .footer p {
+            margin: 0;
+            color: #718096;
+            font-size: 0.9em;
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Modelo Entidad Relación - Base de Datos sga_db</h1>
+		
+		<!--
+        <p class="subtitle">Diagrama conceptual completo con paleta celeste, representación de atributos, cardinalidades, totalidad y agregación.</p>
+        -->
+		
+        <!-- Leyenda 
+        <div class="legend">
+            <div class="legend-item"><div class="box-rect"></div> Entidad</div>
+            <div class="legend-item"><div class="box-diamond"></div> Relación</div>
+            <div class="legend-item"><div class="box-agg"></div> Agregación</div>
+            <div class="legend-item"><div class="circle-tot"></div> Totalidad (Círculo Sólido)</div>
+            <div class="legend-item"><span class="text-pk-legend">Atributo PK</span> (Clave Primaria Subrayada)</div>
+        </div>
+		-->
+
+        <!-- Diagrama SVG -->
+        <div class="diagram-wrapper">
+            <svg viewBox="-40 0 1150 960" width="1150" height="960" xmlns="http://www.w3.org/2000/svg">
+                <!-- ==================== SUPERCLASE Y ROLES ==================== -->
+                <!-- Entidad: ROLES -->
+                <rect x="60" y="90" width="130" height="50" class="entity" />
+                <text x="125" y="115" class="text-title">ROLES</text>
+                
+                <!-- Atributos Roles -->
+                <line x1="125" y1="90" x2="125" y2="60" class="line-attr" />
+                <text x="122" y="50" class="text-attr pk" text-anchor="end">id_rol</text>
+                <text x="125" y="50" class="text-attr" text-anchor="start">, nombre</text>
+
+                <!-- Relación: Posee_Rol -->
+                <polygon points="240,115 285,90 330,115 285,140" class="relationship" />
+                <text x="285" y="115" class="text-rel">Posee_Rol</text>
+                
+                <line x1="190" y1="115" x2="240" y2="115" class="line" />
+                <text x="205" y="106" class="text-card">1</text>
+
+                <!-- Entidad: USUARIOS (Superclase) -->
+                <rect x="420" y="90" width="160" height="50" class="entity" />
+                <text x="500" y="115" class="text-title">USUARIOS</text>
+                
+                <line x1="330" y1="115" x2="420" y2="115" class="line" />
+                <text x="400" y="106" class="text-card">N</text>
+                <circle cx="414" cy="115" r="4.5" class="tot-circle" />
+
+                <!-- Atributos Usuarios -->
+                <line x1="500" y1="90" x2="500" y2="62" class="line-attr" />
+                <text x="440" y="20" class="text-attr pk" text-anchor="end">id_usuario</text>
+                <text x="443" y="20" class="text-attr" text-anchor="start">, ci, email, contrasenia</text>
+                <text x="500" y="36" class="text-attr" text-anchor="middle">primer_nombre, segundo_nombre, primer_apellido, segundo_apellido</text>
+                <text x="500" y="52" class="text-attr" text-anchor="middle">fecha_nac, activo, fecha_registro</text>
+
+                <!-- Herencia / Especialización (ISA) -->
+                <polygon points="500,160 525,195 475,195" class="isa-triangle" />
+                <text x="500" y="182" class="text-rel" font-size="10">ISA</text>
+                
+                <line x1="500" y1="140" x2="500" y2="160" class="line" />
+                <circle cx="500" cy="145" r="4.5" class="tot-circle" />
+
+                <!-- Conexión a Subclases -->
+                <line x1="500" y1="195" x2="220" y2="230" class="line" />
+                <line x1="220" y1="230" x2="220" y2="270" class="line" />
+                
+                <line x1="500" y1="195" x2="850" y2="230" class="line" />
+                <line x1="850" y1="230" x2="850" y2="270" class="line" />
+
+                <!-- Entidad Subclase: ESTUDIANTES -->
+                <rect x="140" y="270" width="160" height="50" class="entity-sub" />
+                <text x="220" y="295" class="text-title">ESTUDIANTES</text>
+                
+                <line x1="160" y1="320" x2="160" y2="345" class="line-attr" />
+                <text x="160" y="358" class="text-attr" text-anchor="middle">nro_legajo</text>
+
+                <!-- Entidad Subclase: DOCENTES -->
+                <rect x="770" y="270" width="160" height="50" class="entity-sub" />
+                <text x="850" y="295" class="text-title">DOCENTES</text>
+                
+                <line x1="850" y1="320" x2="850" y2="345" class="line-attr" />
+                <text x="850" y="358" class="text-attr" text-anchor="middle">nro_legajo</text>
+
+                <!-- ==================== AGREGACIÓN: INSCRIPCIÓN ==================== -->
+                <!-- Caja de Agregación -->
+                <rect x="60" y="390" width="620" height="240" class="aggregation" />
+                <text x="80" y="415" font-size="12" font-weight="bold" fill="#0284c7" font-family="system-ui, -apple-system, sans-serif">AGREGACIÓN: INSCRIPCIÓN</text>
+
+                <!-- Conexión desde Estudiantes hacia la Agregación/Inscripción -->
+                <line x1="220" y1="320" x2="220" y2="480" class="line" />
+                
+                <text x="232" y="340" class="text-card">M</text>
+
+                <!-- Relación Dentro de Agregación: INSCRIPCION -->
+                <polygon points="270,480 320,450 370,480 320,510" class="relationship" />
+                <text x="320" y="480" class="text-rel">Inscripción</text>
+
+                <!-- Entidad: ASIGNATURAS (Dentro de Agregación) -->
+                <rect x="480" y="455" width="160" height="50" class="entity" />
+                <text x="560" y="480" class="text-title">ASIGNATURAS</text>
+
+                <!-- Conexiones dentro de la Agregación -->
+                <line x1="220" y1="480" x2="270" y2="480" class="line" />
+                <line x1="370" y1="480" x2="480" y2="480" class="line" />
+                
+                <text x="460" y="470" class="text-card">N</text>
+
+                <!-- Atributos de Inscripción -->
+                <line x1="320" y1="510" x2="320" y2="540" class="line-attr" />
+                <text x="270" y="555" class="text-attr pk" text-anchor="end">id_inscripcion</text>
+                <text x="273" y="555" class="text-attr" text-anchor="start">, fecha_inscripcion</text>
+
+                <!-- Atributos Asignaturas -->
+                <line x1="560" y1="455" x2="560" y2="430" class="line-attr" />
+                <text x="440" y="420" class="text-attr pk" text-anchor="end">id_asignatura</text>
+                <text x="443" y="420" class="text-attr" text-anchor="start">, nombre, creditos, cupo_maximo, activo</text>
+
+                <!-- ==================== RELACIÓN DICTA (DOCENTES - ASIGNATURAS) ==================== -->
+                <polygon points="730,480 780,450 830,480 780,510" class="relationship" />
+                <text x="780" y="480" class="text-rel">Dicta</text>
+
+                <line x1="850" y1="320" x2="850" y2="480" class="line" />
+                <line x1="850" y1="480" x2="830" y2="480" class="line" />
+                <line x1="730" y1="480" x2="640" y2="480" class="line" />
+
+                <text x="835" y="335" class="text-card">N</text>
+                <text x="655" y="470" class="text-card">M</text>
+
+                <!-- Atributos Dicta -->
+                <line x1="780" y1="510" x2="780" y2="540" class="line-attr" />
+                <text x="780" y="555" class="text-attr" text-anchor="middle">fecha_asignacion</text>
+
+                <!-- ==================== ESTADOS ASIGNATURAS ==================== -->
+                <!-- Relación: ESTADO -->
+                <polygon points="520,580 560,555 600,580 560,605" class="relationship" />
+                <text x="560" y="580" class="text-rel">Estado</text>
+
+                <line x1="560" y1="505" x2="560" y2="555" class="line" />
+                <circle cx="560" cy="512" r="4.5" class="tot-circle" />
+                <text x="572" y="530" class="text-card">N</text>
+
+                <!-- Entidad: ESTADOS_ASIGNATURAS -->
+                <rect x="470" y="660" width="180" height="50" class="entity" />
+                <text x="560" y="685" class="text-title">ESTADOS_ASIG</text>
+
+                <line x1="560" y1="605" x2="560" y2="660" class="line" />
+                <text x="572" y="635" class="text-card">1</text>
+
+                <!-- Atributos Estados Asignaturas -->
+                <line x1="560" y1="710" x2="560" y2="732" class="line-attr" />
+                <text x="500" y="745" class="text-attr pk" text-anchor="end">id_estado_asignatura</text>
+                <text x="503" y="745" class="text-attr" text-anchor="start">, nombre</text>
+
+                <!-- ==================== EVALUACIÓN DE LA AGREGACIÓN ==================== -->
+                <!-- Relación: CALIFICA -->
+                <polygon points="305,810 370,775 435,810 370,845" class="relationship" />
+                <text x="370" y="810" class="text-rel">Califica</text>
+
+                <!-- Conexión desde Agregación INSCRIPCIÓN hacia CALIFICA (Participación PARCIAL: sin círculo de totalidad) -->
+                <line x1="370" y1="630" x2="370" y2="775" class="line" />
+                <text x="382" y="655" class="text-card">N</text>
+
+                <!-- Entidad: TIPOS_EVALUACIONES -->
+                <rect x="60" y="785" width="180" height="50" class="entity" />
+                <text x="150" y="810" class="text-title">TIPOS_EVALUACIONES</text>
+
+                <!-- Conexión desde TIPOS_EVALUACIONES hacia CALIFICA -->
+                <line x1="240" y1="810" x2="305" y2="810" class="line" />
+                <text x="255" y="800" class="text-card">M</text>
+
+                <!-- Atributos Tipos Evaluaciones -->
+                <line x1="150" y1="835" x2="150" y2="860" class="line-attr" />
+                <text x="85" y="875" class="text-attr pk" text-anchor="end">id_tipo_evaluacion</text>
+                <text x="88" y="875" class="text-attr" text-anchor="start">, nombre</text>
+
+                <!-- Conexión desde DOCENTES hacia CALIFICA -->
+                <line x1="930" y1="295" x2="1020" y2="295" class="line" />
+                <line x1="1020" y1="295" x2="1020" y2="810" class="line" />
+                <line x1="1020" y1="810" x2="435" y2="810" class="line" />
+                <text x="1000" y="315" class="text-card">1</text>
+
+                <!-- Atributos de Califica -->
+                <line x1="370" y1="845" x2="370" y2="875" class="line-attr" />
+                <text x="310" y="890" class="text-attr pk" text-anchor="end">id_calificacion</text>
+                <text x="313" y="890" class="text-attr" text-anchor="start">, nota, fecha_calificacion</text>
+            </svg>
+        </div>
+
+        <!-- Notas explicativas 
+        <div class="notes-box">
+            <h3>Puntos clave del Modelo Entidad-Relación (MER):</h3>
+            <ul>
+                <li><strong>Agregación (Inscripción):</strong> Encierra la relación N:M entre <code>ESTUDIANTES</code> y <code>ASIGNATURAS</code>. Su participación en <code>Califica</code> es <strong>parcial</strong> (opcional), ya que una inscripción existe desde el inicio de la cursada antes de tener calificaciones asociadas.</li>
+                <li><strong>Herencia / Especialización (ISA):</strong> La superclase <code>USUARIOS</code> se especializa en las subclases <code>ESTUDIANTES</code> y <code>DOCENTES</code>.</li>
+                <li><strong>Totalidad (Participación Total):</strong> Representada mediante pequeños círculos sólidos de color azul celeste en los extremos de las relaciones donde la participación es estrictamente obligatoria.</li>
+                <li><strong>Claves Primarias:</strong> Identificadas con subrayado en los atributos alrededor de cada entidad/relación.</li>
+            </ul>
+        </div>
+		-->
+
+        <!-- Footer Centrado sin negrita -->
+        <footer class="footer">
+            <p>Taller Integrador de Sistemas. Gabriel Tarela 2026.</p>
+        </footer>
+    </div>
+</body>
+</html>
