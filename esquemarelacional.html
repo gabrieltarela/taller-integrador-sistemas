@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esquema Jerárquico de Árbol - SGA DB</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 30px;
+            background-color: #f4f6f9;
+            color: #333;
+        }
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a365d;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        p.subtitle {
+            color: #4a5568;
+            margin-bottom: 20px;
+        }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            background-color: #2b6cb0;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .btn:hover {
+            background-color: #1a365d;
+        }
+        /* Estilos del Árbol */
+        .tree-root {
+            background: #1a365d;
+            color: #ffffff;
+            padding: 12px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1.1em;
+            display: inline-block;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+        .tree-branch {
+            margin-left: 20px;
+            border-left: 2px dashed #cbd5e0;
+            padding-left: 20px;
+        }
+        details.table-node {
+            background: #edf2f7;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+        summary.table-summary {
+            padding: 12px 16px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.02em;
+            cursor: pointer;
+            user-select: none;
+            font-weight: 600;
+            color: #2d3748;
+            background-color: #edf2f7;
+            transition: background-color 0.15s ease;
+        }
+        summary.table-summary:hover {
+            background-color: #e2e8f0;
+        }
+        u {
+            font-weight: bold;
+            text-decoration: underline;
+            color: #2b6cb0;
+        }
+        .attribute-details {
+            padding: 15px;
+            background-color: #ffffff;
+            border-top: 1px solid #cbd5e0;
+        }
+        table.attr-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.93em;
+        }
+        table.attr-table th, table.attr-table td {
+            padding: 9px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        table.attr-table th {
+            background-color: #f7fafc;
+            color: #4a5568;
+            font-weight: 600;
+        }
+        .attr-name {
+            font-family: 'Courier New', Courier, monospace;
+            width: 45%;
+        }
+        .badge {
+            font-size: 0.75em;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 4px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .badge-pk { background-color: #bee3f8; color: #2b6cb0; font-weight: bold; }
+        .badge-fk { background-color: #feebc8; color: #c05621; }
+        .badge-type { background-color: #e2e8f0; color: #4a5568; }
+        .notes {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            border-radius: 4px;
+        }
+        .notes h3 {
+            margin-top: 0;
+            color: #2b6cb0;
+        }
+        /* Footer centrado */
+        .footer {
+            margin-top: 35px;
+            padding-top: 15px;
+            border-top: 1px solid #cbd5e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+    	    font-weight: normal; 
+
+        }
+        .footer p {
+            margin: 0;
+            color: #718096;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Esquema Relacional (Pasaje a Tablas) - Base de Datos: sga_db</h1>
+        
+        <!-- Botones de Control -->
+        <div class="controls">
+            <button class="btn" onclick="expandAll()">Expandir todo</button>
+            <button class="btn" onclick="collapseAll()">Contraer todo</button>
+        </div>
+
+        <!-- Nodo Raíz del Árbol -->
+        <div class="tree-root">
+            🗄️ sga_db
+        </div>
+
+        <!-- Ramas (Tablas) -->
+        <div class="tree-branch">
+            
+            <!-- Tabla roles -->
+            <details class="table-node">
+                <summary class="table-summary">roles(<u>id_rol</u>, nombre)</summary>
+                <div class="attribute-details">
+                    <table class="attr-table">
+                        <thead>
+                            <tr>
+                                <th>Atributo</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="attr-name"><u>id_rol</u> <span class="badge badge-pk">PK</span> <span class="badge badge-type">INT AUTO_INCREMENT</span></td>
+                                <td>Identificador único y correlativo del rol.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">nombre <span class="badge badge-type">VARCHAR(50) UNIQUE</span></td>
+                                <td>Nombre del rol del sistema (ej. Administrador, Estudiante, Docente).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- Tabla estados_asignaturas -->
+            <details class="table-node">
+                <summary class="table-summary">estados_asignaturas(<u>id_estado_asignatura</u>, nombre)</summary>
+                <div class="attribute-details">
+                    <table class="attr-table">
+                        <thead>
+                            <tr>
+                                <th>Atributo</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="attr-name"><u>id_estado_asignatura</u> <span class="badge badge-pk">PK</span> <span class="badge badge-type">INT AUTO_INCREMENT</span></td>
+                                <td>Identificador único del estado de la asignatura.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">nombre <span class="badge badge-type">VARCHAR(50) UNIQUE</span></td>
+                                <td>Descripción del estado (ej. Activa, Inactiva, Suspendida).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- Tabla tipos_evaluaciones -->
+            <details class="table-node">
+                <summary class="table-summary">tipos_evaluaciones(<u>id_tipo_evaluacion</u>, nombre)</summary>
+                <div class="attribute-details">
+                    <table class="attr-table">
+                        <thead>
+                            <tr>
+                                <th>Atributo</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="attr-name"><u>id_tipo_evaluacion</u> <span class="badge badge-pk">PK</span> <span class="badge badge-type">INT AUTO_INCREMENT</span></td>
+                                <td>Identificador único del tipo de evaluación.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">nombre <span class="badge badge-type">VARCHAR(50) UNIQUE</span></td>
+                                <td>Nombre del tipo de prueba (ej. Primer Parcial, Examen Final, Trabajo Obligatorio).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- Tabla usuarios -->
+            <details class="table-node">
+                <summary class="table-summary">usuarios(<u>id_usuario</u>, cedula_identidad, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, email, contrasenia, fecha_nacimiento, id_rol, activo, fecha_registro)</summary>
+                <div class="attribute-details">
+                    <table class="attr-table">
+                        <thead>
+                            <tr>
+                                <th>Atributo</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="attr-name"><u>id_usuario</u> <span class="badge badge-pk">PK</span> <span class="badge badge-type">INT AUTO_INCREMENT</span></td>
+                                <td>Identificador único del usuario en la superclase.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">cedula_identidad <span class="badge badge-type">VARCHAR(10) UNIQUE</span></td>
+                                <td>Documento de identidad oficial del usuario.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">primer_nombre <span class="badge badge-type">VARCHAR(50)</span></td>
+                                <td>Primer nombre obligatorio del usuario.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">segundo_nombre <span class="badge badge-type">VARCHAR(50) NULL</span></td>
+                                <td>Segundo nombre opcional del usuario.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">primer_apellido <span class="badge badge-type">VARCHAR(50)</span></td>
+                                <td>Primer apellido obligatorio del usuario.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">segundo_apellido <span class="badge badge-type">VARCHAR(50) NULL</span></td>
+                                <td>Segundo apellido opcional del usuario.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">email <span class="badge badge-type">VARCHAR(150) UNIQUE</span></td>
+                                <td>Dirección de correo electrónico única para acceso y notificaciones.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">contrasenia <span class="badge badge-type">VARCHAR(50)</span></td>
+                                <td>Clave de acceso codificada del usuario.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">fecha_nacimiento <span class="badge badge-type">DATE</span></td>
+                                <td>Fecha de nacimiento registrada.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">id_rol <span class="badge badge-fk">FK</span> <span class="badge badge-type">INT</span></td>
+                                <td>Clave foránea referenciada a la tabla <code>roles(id_rol)</code>.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">activo <span class="badge badge-type">TINYINT(1) DEFAULT 1</span></td>
+                                <td>Indica si la cuenta se encuentra habilitada (1) o inactiva (0).</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">fecha_registro <span class="badge badge-type">TIMESTAMP</span></td>
+                                <td>Fecha y hora automática de alta en el sistema.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- Tabla estudiantes -->
+            <details class="table-node">
+                <summary class="table-summary">estudiantes(<u>id_usuario</u>, nro_legajo)</summary>
+                <div class="attribute-details">
+                    <table class="attr-table">
+                        <thead>
+                            <tr>
+                                <th>Atributo</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="attr-name"><u>id_usuario</u> <span class="badge badge-pk">PK</span> <span class="badge badge-fk">FK</span> <span class="badge badge-type">INT</span></td>
+                                <td>Identificador heredado de <code>usuarios(id_usuario)</code> (Relación de subclase).</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">nro_legajo <span class="badge badge-type">VARCHAR(20) UNIQUE</span></td>
+                                <td>Número de legajo estudiantil único asignado al alumno.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- Tabla docentes -->
+            <details class="table-node">
+                <summary class="table-summary">docentes(<u>id_usuario</u>, nro_legajo)</summary>
+                <div class="attribute-details">
+                    <table class="attr-table">
+                        <thead>
+                            <tr>
+                                <th>Atributo</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="attr-name"><u>id_usuario</u> <span class="badge badge-pk">PK</span> <span class="badge badge-fk">FK</span> <span class="badge badge-type">INT</span></td>
+                                <td>Identificador heredado de <code>usuarios(id_usuario)</code> (Relación de subclase).</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">nro_legajo <span class="badge badge-type">VARCHAR(20) UNIQUE</span></td>
+                                <td>Número de legajo docente único asignado al profesor.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- Tabla asignaturas -->
+            <details class="table-node">
+                <summary class="table-summary">asignaturas(<u>id_asignatura</u>, nombre, creditos, cupo_maximo, id_estado_asignatura, activo)</summary>
+                <div class="attribute-details">
+                    <table class="attr-table">
+                        <thead>
+                            <tr>
+                                <th>Atributo</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="attr-name"><u>id_asignatura</u> <span class="badge badge-pk">PK</span> <span class="badge badge-type">INT AUTO_INCREMENT</span></td>
+                                <td>Identificador único de la asignatura.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">nombre <span class="badge badge-type">VARCHAR(150) UNIQUE</span></td>
+                                <td>Nombre completo de la asignatura o materia.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">creditos <span class="badge badge-type">INT (>0)</span></td>
+                                <td>Cantidad de créditos curriculares que otorga la materia.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">cupo_maximo <span class="badge badge-type">INT (>=0)</span></td>
+                                <td>Capacidad máxima de alumnos permitidos para cursar.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">id_estado_asignatura <span class="badge badge-fk">FK</span> <span class="badge badge-type">INT</span></td>
+                                <td>Referencia al estado en <code>estados_asignaturas(id_estado_asignatura)</code>.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">activo <span class="badge badge-type">TINYINT(1) DEFAULT 1</span></td>
+                                <td>Estado operacional de la asignatura (1=Habilitada, 0=Deshabilitada).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- Tabla inscripciones -->
+            <details class="table-node">
+                <summary class="table-summary">inscripciones(<u>id_inscripcion</u>, id_usuario, id_asignatura, fecha_inscripcion)</summary>
+                <div class="attribute-details">
+                    <table class="attr-table">
+                        <thead>
+                            <tr>
+                                <th>Atributo</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="attr-name"><u>id_inscripcion</u> <span class="badge badge-pk">PK</span> <span class="badge badge-type">INT AUTO_INCREMENT</span></td>
+                                <td>Identificador correlativo único del registro de inscripción.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">id_usuario <span class="badge badge-fk">FK</span> <span class="badge badge-type">INT</span></td>
+                                <td>Estudiante que realiza el alta (referencia a <code>estudiantes(id_usuario)</code>).</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">id_asignatura <span class="badge badge-fk">FK</span> <span class="badge badge-type">INT</span></td>
+                                <td>Asignatura elegida (referencia a <code>asignaturas(id_asignatura)</code>).</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">fecha_inscripcion <span class="badge badge-type">DATE</span></td>
+                                <td>Fecha de registro formal de la inscripción.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- Tabla calificaciones -->
+            <details class="table-node">
+                <summary class="table-summary">calificaciones(<u>id_calificacion</u>, id_inscripcion, id_usuario, id_tipo_evaluacion, nota, fecha_calificacion)</summary>
+                <div class="attribute-details">
+                    <table class="attr-table">
+                        <thead>
+                            <tr>
+                                <th>Atributo</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="attr-name"><u>id_calificacion</u> <span class="badge badge-pk">PK</span> <span class="badge badge-type">INT AUTO_INCREMENT</span></td>
+                                <td>Identificador único del registro de nota.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">id_inscripcion <span class="badge badge-fk">FK</span> <span class="badge badge-type">INT</span></td>
+                                <td>Inscripción vinculada (referencia a <code>inscripciones(id_inscripcion)</code>).</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">id_usuario <span class="badge badge-fk">FK</span> <span class="badge badge-type">INT</span></td>
+                                <td>Docente evaluador que asigna la nota (referencia a <code>docentes(id_usuario)</code>).</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">id_tipo_evaluacion <span class="badge badge-fk">FK</span> <span class="badge badge-type">INT</span></td>
+                                <td>Instancia evaluada (referencia a <code>tipos_evaluaciones(id_tipo_evaluacion)</code>).</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">nota <span class="badge badge-type">DECIMAL(4,2) (1..12)</span></td>
+                                <td>Calificación numérica obtenida (rango legal entre 1.00 y 12.00).</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">fecha_calificacion <span class="badge badge-type">DATE</span></td>
+                                <td>Fecha de ingreso de la nota al sistema.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- Tabla asignaturas_docentes -->
+            <details class="table-node">
+                <summary class="table-summary">asignaturas_docentes(<u>id_usuario</u>, <u>id_asignatura</u>, fecha_asignacion)</summary>
+                <div class="attribute-details">
+                    <table class="attr-table">
+                        <thead>
+                            <tr>
+                                <th>Atributo</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="attr-name"><u>id_usuario</u> <span class="badge badge-pk">PK</span> <span class="badge badge-fk">FK</span> <span class="badge badge-type">INT</span></td>
+                                <td>Docente asignado (referencia a <code>docentes(id_usuario)</code>). Parte de PK compuesta.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name"><u>id_asignatura</u> <span class="badge badge-pk">PK</span> <span class="badge badge-fk">FK</span> <span class="badge badge-type">INT</span></td>
+                                <td>Materia dictada (referencia a <code>asignaturas(id_asignatura)</code>). Parte de PK compuesta.</td>
+                            </tr>
+                            <tr>
+                                <td class="attr-name">fecha_asignacion <span class="badge badge-type">DATE</span></td>
+                                <td>Fecha de designación del docente en la asignatura.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+        </div>
+
+        <!-- Footer Centrado -->
+        <footer class="footer">
+            <p>Taller Integrador de Sistemas. Gabriel Tarela 2026.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        function expandAll() {
+            document.querySelectorAll('details.table-node').forEach(detail => detail.open = true);
+        }
+        function collapseAll() {
+            document.querySelectorAll('details.table-node').forEach(detail => detail.open = false);
+        }
+    </script>
+</body>
+</html>
